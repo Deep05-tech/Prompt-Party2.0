@@ -40,17 +40,19 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
-            <Link
-              href="/dashboard"
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                pathname === "/dashboard"
-                  ? "bg-ocean-800 text-treasure-400 border border-ocean-700"
-                  : "text-ocean-100 hover:bg-ocean-800/50 hover:text-treasure-200"
-              }`}
-            >
-              <Anchor className="h-4 w-4" />
-              <span>Dashboard</span>
-            </Link>
+            {(session?.user as any)?.role !== "FOUNDER" && (
+              <Link
+                href="/dashboard"
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  pathname === "/dashboard"
+                    ? "bg-ocean-800 text-treasure-400 border border-ocean-700"
+                    : "text-ocean-100 hover:bg-ocean-800/50 hover:text-treasure-200"
+                }`}
+              >
+                <Anchor className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+            )}
 
             <Link
               href="/teams"

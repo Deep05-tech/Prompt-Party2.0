@@ -22,6 +22,10 @@ export default async function DashboardPage() {
     inputs: {},
   };
 
+  if ((session.user as any).role === "FOUNDER") {
+    redirect("/judge");
+  }
+
   const team = (session.user as any).teamId 
     ? await Team.findById((session.user as any).teamId)
     : null;

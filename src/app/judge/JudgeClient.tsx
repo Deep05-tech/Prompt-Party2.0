@@ -15,11 +15,46 @@ interface SubmissionProps {
   founderScore: number;
 }
 
-const getPreviewUrl = (url: string) => {
-  if (url.includes("drive.google.com") && url.includes("/view")) {
-    return url.replace("/view", "/preview");
+const MediaEmbed = ({ url }: { url: string }) => {
+  const [isError, setIsError] = useState(false);
+  
+  const getFileId = (link: string) => {
+    const match = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : null;
+  };
+
+  const fileId = getFileId(url);
+
+  if (!isError && fileId) {
+    return (
+      <div className="w-full h-[350px] bg-black/80 rounded-lg border border-ocean-800 flex items-center justify-center overflow-hidden p-2">
+        <img 
+          src={`https://drive.google.com/uc?export=view&id=${fileId}`} 
+          alt="Submission Media"
+          className="max-w-full max-h-full object-contain"
+          onError={() => setIsError(true)}
+        />
+      </div>
+    );
   }
-  return url;
+
+  const getPreviewUrl = (link: string) => {
+    if (link.includes("drive.google.com") && link.includes("/view")) {
+      return link.replace("/view", "/preview");
+    }
+    return link;
+  };
+
+  return (
+    <div className="w-full h-[350px] bg-black/80 rounded-lg border border-ocean-800 overflow-hidden">
+      <iframe 
+        src={getPreviewUrl(url)} 
+        className="w-full h-full border-0"
+        allow="autoplay; encrypted-media; fullscreen"
+        title="Media Preview"
+      ></iframe>
+    </div>
+  );
 };
 
 export default function JudgeClient({ submissions }: { submissions: SubmissionProps[] }) {
@@ -74,14 +109,7 @@ export default function JudgeClient({ submissions }: { submissions: SubmissionPr
                   <p className="text-ocean-100 text-sm whitespace-pre-wrap">{sub.prompt}</p>
                 </div>
 
-                <div className="w-full h-[400px] bg-black/50 rounded-lg border border-ocean-800 overflow-hidden">
-                  <iframe 
-                    src={getPreviewUrl(sub.mediaUrl)} 
-                    className="w-full h-full border-0"
-                    allow="autoplay; encrypted-media; fullscreen"
-                    title="Media Preview"
-                  ></iframe>
-                </div>
+                <MediaEmbed url={sub.mediaUrl} />
                 
                 <div className="flex gap-2 text-xs">
                   <a href={sub.mediaUrl} target="_blank" rel="noreferrer" className="flex-1 text-center bg-ocean-800 hover:bg-ocean-700 text-white py-2 rounded transition">

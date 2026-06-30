@@ -57,7 +57,7 @@ export async function updateGameState(data: {
 export async function addFounderScore(submissionId: string, score: number) {
   const session = await getServerSession(authOptions);
   const role = (session?.user as any)?.role;
-  if (!session || !session.user || role !== "ADMIN") throw new Error("Unauthorized");
+  if (!session || !session.user || (role !== "ADMIN" && role !== "FOUNDER")) throw new Error("Unauthorized");
 
   await dbConnect();
 

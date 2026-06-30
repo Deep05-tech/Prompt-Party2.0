@@ -103,6 +103,20 @@ export default function Navbar() {
                 </Link>
               </>
             )}
+
+            {((session?.user as any)?.role === "ADMIN" || (session?.user as any)?.role === "FOUNDER") && (
+              <Link
+                href="/judge"
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  pathname === "/judge"
+                    ? "bg-purple-900/50 text-purple-400 border border-purple-800"
+                    : "text-ocean-100 hover:bg-purple-900/30 hover:text-purple-300"
+                }`}
+              >
+                <Crown className="h-4 w-4" />
+                <span>Judging Panel</span>
+              </Link>
+            )}
             
             <div className="ml-4 pl-4 border-l border-wood-600 flex items-center gap-4">
               <span className="text-sm text-treasure-200 font-serif">

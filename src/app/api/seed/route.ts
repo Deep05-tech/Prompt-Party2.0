@@ -112,6 +112,7 @@ const CREWS = [
       borderStyle: "3px solid #facc15", // Solid gold
       fontFamily: "var(--font-serif)",
       emblemUrl: "/emblems/roger.png"
+    } 
   },
   { 
     captain: "kaido", team: "Beast Pirates", 

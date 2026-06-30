@@ -9,10 +9,18 @@ interface SubmissionProps {
   _id: string;
   submissionNumber: number;
   round: number;
+  prompt: string;
   mediaUrl: string;
   promptDocUrl: string;
   founderScore: number;
 }
+
+const getPreviewUrl = (url: string) => {
+  if (url.includes("drive.google.com") && url.includes("/view")) {
+    return url.replace("/view", "/preview");
+  }
+  return url;
+};
 
 export default function JudgeClient({ submissions }: { submissions: SubmissionProps[] }) {
   const [localSubmissions, setLocalSubmissions] = useState(submissions);
@@ -61,23 +69,28 @@ export default function JudgeClient({ submissions }: { submissions: SubmissionPr
               </div>
               
               <div className="flex-grow space-y-4 mb-6">
-                <a 
-                  href={sub.mediaUrl} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="flex items-center justify-center gap-2 w-full bg-ocean-800 hover:bg-ocean-700 text-white py-3 rounded-lg font-semibold transition"
-                >
-                  <ExternalLink size={18} /> View Final Output (Media)
-                </a>
+                <div className="bg-black/40 rounded-lg p-4 border border-ocean-800">
+                  <h4 className="text-ocean-400 text-xs uppercase tracking-wider mb-2 font-bold">Best Prompt Used</h4>
+                  <p className="text-ocean-100 text-sm whitespace-pre-wrap">{sub.prompt}</p>
+                </div>
+
+                <div className="w-full bg-black/50 rounded-lg border border-ocean-800 overflow-hidden relative" style={{ aspectRatio: '16/9' }}>
+                  <iframe 
+                    src={getPreviewUrl(sub.mediaUrl)} 
+                    className="absolute inset-0 w-full h-full border-0"
+                    allow="autoplay; encrypted-media; fullscreen"
+                    title="Media Preview"
+                  ></iframe>
+                </div>
                 
-                <a 
-                  href={sub.promptDocUrl} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="flex items-center justify-center gap-2 w-full border border-ocean-600 hover:bg-ocean-800 text-ocean-200 py-3 rounded-lg font-semibold transition"
-                >
-                  <ExternalLink size={18} /> View Google Doc (Workflow)
-                </a>
+                <div className="flex gap-2 text-xs">
+                  <a href={sub.mediaUrl} target="_blank" rel="noreferrer" className="flex-1 text-center bg-ocean-800 hover:bg-ocean-700 text-white py-2 rounded transition">
+                    Open Media Fullscreen
+                  </a>
+                  <a href={sub.promptDocUrl} target="_blank" rel="noreferrer" className="flex-1 text-center border border-ocean-600 hover:bg-ocean-800 text-ocean-200 py-2 rounded transition">
+                    View Google Doc
+                  </a>
+                </div>
               </div>
 
               <div className="pt-4 border-t border-ocean-800">

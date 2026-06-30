@@ -24,8 +24,9 @@ export default async function JudgePage() {
     _id: sub._id.toString(),
     submissionNumber: index + 1, // Fake identifier for blind grading
     round: sub.round,
+    prompt: sub.prompt, // Pass the text prompt
     mediaUrl: sub.mediaUrl,
-    promptDocUrl: sub.promptDocUrl, // Still provide this just in case they want to read it
+    promptDocUrl: sub.promptDocUrl,
     founderScore: sub.founderScore || 0,
   }));
 

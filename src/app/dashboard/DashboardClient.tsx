@@ -17,6 +17,7 @@ interface DashboardClientProps {
   userRole: string;
   teamId?: string;
   hasSubmitted?: boolean;
+  wheelResult?: string;
   animationStyle: string;
   motifIcon: string;
   motifText: string;
@@ -27,6 +28,7 @@ export default function DashboardClient({
   userRole, 
   teamId, 
   hasSubmitted = false,
+  wheelResult,
   animationStyle,
   motifIcon,
   motifText
@@ -222,17 +224,31 @@ export default function DashboardClient({
           <h3 className="text-xl mb-6 relative z-10 font-bold" style={{ color: 'var(--color-treasure-400)', fontFamily: 'var(--theme-font, var(--font-serif))' }}>Crew Actions</h3>
           
           <div className="space-y-4">
-            {gameState.currentRound === 2 && (userRole === "CAPTAIN" || userRole === "ADMIN") && (
-              <Link href="/wheel" className="block">
-                <motion.div 
-                  whileHover={{ scale: 1.02 }} 
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full text-center bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white font-bold py-6 px-4 rounded-2xl shadow-lg transition-all border border-purple-400/30"
-                >
-                  <span className="text-2xl mr-2">🎡</span> Spin Devil Fruit Wheel
-                </motion.div>
-              </Link>
-            )}
+            {gameState.currentRound === 2 ? (
+              <div className="w-full h-full p-4 text-center">
+                {wheelResult ? (
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <div className="bg-wood-800/80 border-2 border-gold/50 rounded-xl p-4 shadow-xl">
+                      <h4 className="text-gold font-serif text-sm uppercase tracking-widest mb-2">Your Round 2 Fate</h4>
+                      <p className="text-white font-bold whitespace-pre-wrap leading-relaxed">{wheelResult.replace(/ \| /g, '\n')}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h4 className="text-ocean-300 mb-2 font-serif text-lg">Phase 1: Determine Fate</h4>
+                    {userRole === "CAPTAIN" || userRole === "ADMIN" ? (
+                      <Link href="/wheel" className="w-full inline-block bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg border border-purple-400/50 transition-all mt-2">
+                        Spin the Devil Fruit Wheel
+                      </Link>
+                    ) : (
+                      <p className="text-ocean-200 text-sm mt-4 bg-black/20 p-3 rounded-lg border border-white/5">
+                        Waiting for Captain to spin the wheel...
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+            ) : null}
 
             {userRole === "CAPTAIN" || userRole === "ADMIN" ? (
               hasSubmitted ? (

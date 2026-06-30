@@ -18,6 +18,7 @@ export interface ITeam extends Document {
     motifText: string;
     animationStyle: string;
   };
+  wheelResult?: string;
 }
 
 const TeamSchema = new Schema<ITeam>({

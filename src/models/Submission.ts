@@ -7,8 +7,10 @@ export interface ISubmission extends Document {
   promptDocUrl: string; // Google Drive link
   mediaUrl: string; // Final Image/Video link
   aiScore?: number;
+  aiFeedback?: string;
   founderScore?: number;
   totalScore?: number;
+  createdAt: Date;
 }
 
 const SubmissionSchema = new Schema<ISubmission>({
@@ -18,8 +20,10 @@ const SubmissionSchema = new Schema<ISubmission>({
   promptDocUrl: { type: String, required: true },
   mediaUrl: { type: String, required: true },
   aiScore: { type: Number, default: 0 },
+  aiFeedback: { type: String },
   founderScore: { type: Number, default: 0 },
   totalScore: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
 });
 
 export default mongoose.models.Submission || mongoose.model<ISubmission>("Submission", SubmissionSchema);

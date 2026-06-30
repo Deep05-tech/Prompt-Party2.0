@@ -141,7 +141,7 @@ export default function DevilFruitWheel({ teamId }: { teamId?: string }) {
 
     const duration = 4 + (index * 0.5);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       setSpinning(prev => {
         const newS = [...prev];
         newS[index] = false;
@@ -154,6 +154,21 @@ export default function DevilFruitWheel({ teamId }: { teamId?: string }) {
         // If all results are now populated, fire confetti
         if (newRes.every(r => r !== null)) {
           confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 }, colors: ['#FFD700', '#FFA500', '#FF4500'] });
+          
+          // Save to database
+          const saveResult = async () => {
+            try {
+              const resultString = newRes.join(" | ");
+              await fetch("/api/wheel/spin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ result: resultString }),
+              });
+            } catch (err) {
+              console.error("Failed to save spin result:", err);
+            }
+          };
+          saveResult();
         }
         return newRes;
       });

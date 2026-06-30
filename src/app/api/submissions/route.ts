@@ -3,9 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import dbConnect from "@/lib/db";
 import Submission from "@/models/Submission";
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function fetchGoogleDocText(url: string) {
   try {
@@ -58,36 +58,30 @@ export async function POST(req: Request) {
 
     // AI Evaluation logic
     let aiScore = 0;
+    let aiFeedback = "";
     try {
-      const evaluationPrompt = extractedDocText 
-        ? `Evaluate the following prompt details for structure, clarity, completeness, product understanding, instruction quality, and creativity. Score it out of 60. Return ONLY a JSON object with the format {"score": <number>, "reason": "<short reason>"}. 
-        
-        CRITICAL RULES:
-        - If the combined prompt is extremely short (under 5 words), or is complete gibberish like "test" or "demo", you MUST return exactly {"score": 0, "reason": "Invalid or missing prompt"}. Do not give any pity points.
+      const systemPrompt = "You are an expert AI art director grading a prompt submission for an ad film. You MUST return ONLY a valid JSON object matching this schema: {\"score\": <number between 0 and 60>, \"reason\": \"<string explaining the score>\"}.";
+      
+      const userPromptText = extractedDocText 
+        ? `Evaluate the following prompt details for structure, clarity, completeness, product understanding, instruction quality, and creativity. Score it out of 60.\n\nCRITICAL RULES:\n- If the combined prompt is extremely short (under 5 words), or is complete gibberish like "test" or "demo", you MUST return exactly {"score": 0, "reason": "Invalid or missing prompt"}. Do not give any pity points.\n\nUser Provided Summary: ${prompt}\nExtracted Document Content: ${extractedDocText}`
+        : `Evaluate the following prompt for structure, clarity, completeness, product understanding, instruction quality, and creativity. Score it out of 60.\n\nCRITICAL RULES:\n- If the prompt is extremely short (under 5 words), or is complete gibberish like "test" or "demo", you MUST return exactly {"score": 0, "reason": "Invalid or missing prompt"}. Do not give any pity points.\n\nPrompt: ${prompt}`;
 
-        User Provided Summary: ${prompt}
-        Extracted Document Content: ${extractedDocText}`
-        : `Evaluate the following prompt for structure, clarity, completeness, product understanding, instruction quality, and creativity. Score it out of 60. Return ONLY a JSON object with the format {"score": <number>, "reason": "<short reason>"}. 
-        
-        CRITICAL RULES:
-        - If the prompt is extremely short (under 5 words), or is complete gibberish like "test" or "demo", you MUST return exactly {"score": 0, "reason": "Invalid or missing prompt"}. Do not give any pity points.
-
-        Prompt: ${prompt}`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: evaluationPrompt,
-        config: {
-          responseMimeType: "application/json"
-        }
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPromptText }
+        ],
+        response_format: { type: "json_object" }
       });
       
-      const text = response.text || "{}";
-      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
+      const text = response.choices[0].message.content || "{}";
+      const parsed = JSON.parse(text);
       aiScore = parsed.score || 0;
-    } catch (e) {
-      console.error("Gemini grading failed:", e);
+      aiFeedback = parsed.reason || "No reasoning provided by AI.";
+    } catch (e: any) {
+      console.error("OpenAI grading failed:", e);
+      aiFeedback = `AI Grading Failed: ${e.message || "Unknown error"}`;
       // Fallback or leave score as 0 for admin to fix
     }
 
@@ -98,6 +92,7 @@ export async function POST(req: Request) {
       promptDocUrl,
       mediaUrl,
       aiScore,
+      aiFeedback,
       totalScore: aiScore // Founder score will be added later
     });
 

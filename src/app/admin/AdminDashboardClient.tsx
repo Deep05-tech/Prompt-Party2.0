@@ -159,9 +159,16 @@ export default function AdminDashboardClient({ initialGameState, submissions }: 
 
                 <div className="bg-black/30 p-2 rounded mb-4">
                   <div className="flex justify-between text-sm">
-                    <span>AI Score (60%): <strong className="text-blue-400">{sub.aiScore}/60</strong></span>
+                    <span>AI Score (60%): <strong className="text-ocean-400">{sub.aiScore}/60</strong></span>
                     <span>Founder Score (40%): <strong className="text-green-400">{sub.founderScore}/40</strong></span>
                   </div>
+                  
+                  {sub.aiFeedback && (
+                    <div className="mt-4 p-3 bg-ocean-900/40 rounded-lg border border-ocean-700/50 text-xs text-ocean-200">
+                      <strong className="text-ocean-400 block mb-1 uppercase tracking-wider">AI Grading Feedback:</strong>
+                      {sub.aiFeedback}
+                    </div>
+                  )}
                 </div>
 
                 {sub.founderScore === 0 && (

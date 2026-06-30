@@ -22,10 +22,6 @@ export default async function DashboardPage() {
     inputs: {},
   };
 
-  if (gameState.isCompleted && (session.user as any).role !== "ADMIN") {
-    redirect("/leaderboard");
-  }
-
   const team = (session.user as any).teamId 
     ? await Team.findById((session.user as any).teamId)
     : null;

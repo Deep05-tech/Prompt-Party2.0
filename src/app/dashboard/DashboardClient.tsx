@@ -74,8 +74,33 @@ export default function DashboardClient({ gameState, userRole, teamId, animation
   return (
     <>
       <AnimatedBackground animationStyle={animationStyle} />
+      {/* Event Concluded Overlay */}
+      {gameState.isCompleted && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mb-8 p-10 rounded-[2rem] bg-gradient-to-r from-red-900/80 to-purple-900/80 border-2 border-red-500/50 shadow-[0_0_50px_rgba(220,38,38,0.3)] text-center relative overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none"></div>
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-wider uppercase drop-shadow-lg font-serif">
+            The Event Has Concluded!
+          </h2>
+          <p className="text-xl text-red-200 mb-6">
+            All pirate crews must return to their ships. The final scores are being tallied.
+          </p>
+          <Link href="/leaderboard">
+            <button className="bg-gradient-to-r from-treasure-600 to-treasure-400 hover:from-treasure-500 hover:to-treasure-300 text-wood-900 font-bold py-4 px-8 rounded-xl shadow-2xl transform transition hover:scale-105 active:scale-95 text-lg">
+              View Final Leaderboard
+            </button>
+          </Link>
+        </motion.div>
+      )}
+
+      {/* Main Game Interface */}
       <AnimationEngine styleClass={animationStyle}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-4">
+        <motion.div 
+          className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-4"
+        >
           {/* Main Content Area */}
           <motion.div variants={itemVariants} className="lg:col-span-2 space-y-10">
             {/* Round Status */}
@@ -202,12 +227,12 @@ export default function DashboardClient({ gameState, userRole, teamId, animation
 
             {userRole === "CAPTAIN" || userRole === "ADMIN" ? (
               <motion.button 
-                whileHover={{ scale: gameState.isActive ? 1.02 : 1 }}
-                whileTap={{ scale: gameState.isActive ? 0.98 : 1 }}
+                whileHover={{ scale: (gameState.isActive && !gameState.isCompleted) ? 1.02 : 1 }}
+                whileTap={{ scale: (gameState.isActive && !gameState.isCompleted) ? 0.98 : 1 }}
                 onClick={() => setIsSubmitModalOpen(true)}
-                disabled={!gameState.isActive}
+                disabled={!gameState.isActive || gameState.isCompleted}
                 className={`w-full flex items-center justify-center gap-2 font-bold py-6 px-4 rounded-2xl shadow-lg transition-all border ${
-                  gameState.isActive
+                  (gameState.isActive && !gameState.isCompleted)
                     ? "bg-gradient-to-r from-treasure-600 to-treasure-500 hover:from-treasure-500 hover:to-treasure-400 text-wood-900 border-treasure-400/50"
                     : "bg-black/20 text-ocean-500 border-white/5 cursor-not-allowed"
                 }`}
@@ -249,7 +274,7 @@ export default function DashboardClient({ gameState, userRole, teamId, animation
             alert("Submission successful! The Fleet Admiral will review your plunder.");
           }}
         />
-      </div>
+      </motion.div>
     </AnimationEngine>
     </>
   );

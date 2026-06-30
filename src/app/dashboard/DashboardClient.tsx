@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Clock, Upload, Anchor, Sun, HeartPulse, Swords, Zap, Star, Moon, Magnet, Flower, Droplets, Crown } from "lucide-react";
+import { Clock, Upload, Anchor, Sun, HeartPulse, Swords, Zap, Star, Moon, Magnet, Flower, Droplets, Crown, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import SubmissionModal from "@/components/SubmissionModal";
 import { motion } from "framer-motion";
@@ -16,12 +16,21 @@ interface DashboardClientProps {
   gameState: any;
   userRole: string;
   teamId?: string;
+  hasSubmitted?: boolean;
   animationStyle: string;
   motifIcon: string;
   motifText: string;
 }
 
-export default function DashboardClient({ gameState, userRole, teamId, animationStyle, motifIcon, motifText }: DashboardClientProps) {
+export default function DashboardClient({ 
+  gameState, 
+  userRole, 
+  teamId, 
+  hasSubmitted = false,
+  animationStyle,
+  motifIcon,
+  motifText
+}: DashboardClientProps) {
   const [timeLeft, setTimeLeft] = useState("");
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
@@ -226,20 +235,27 @@ export default function DashboardClient({ gameState, userRole, teamId, animation
             )}
 
             {userRole === "CAPTAIN" || userRole === "ADMIN" ? (
-              <motion.button 
-                whileHover={{ scale: (gameState.isActive && !gameState.isCompleted) ? 1.02 : 1 }}
-                whileTap={{ scale: (gameState.isActive && !gameState.isCompleted) ? 0.98 : 1 }}
-                onClick={() => setIsSubmitModalOpen(true)}
-                disabled={!gameState.isActive || gameState.isCompleted}
-                className={`w-full flex items-center justify-center gap-2 font-bold py-6 px-4 rounded-2xl shadow-lg transition-all border ${
-                  (gameState.isActive && !gameState.isCompleted)
-                    ? "bg-gradient-to-r from-treasure-600 to-treasure-500 hover:from-treasure-500 hover:to-treasure-400 text-wood-900 border-treasure-400/50"
-                    : "bg-black/20 text-ocean-500 border-white/5 cursor-not-allowed"
-                }`}
-              >
-                <Upload size={20} />
-                Submit Plunder
-              </motion.button>
+              hasSubmitted ? (
+                <div className="w-full flex items-center justify-center gap-2 font-bold py-6 px-4 rounded-2xl shadow-lg border bg-green-900/50 text-green-400 border-green-500/50">
+                  <CheckCircle size={20} />
+                  Plunder Submitted for Round {gameState.currentRound}!
+                </div>
+              ) : (
+                <motion.button 
+                  whileHover={{ scale: (gameState.isActive && !gameState.isCompleted) ? 1.02 : 1 }}
+                  whileTap={{ scale: (gameState.isActive && !gameState.isCompleted) ? 0.98 : 1 }}
+                  onClick={() => setIsSubmitModalOpen(true)}
+                  disabled={!gameState.isActive || gameState.isCompleted}
+                  className={`w-full flex items-center justify-center gap-2 font-bold py-6 px-4 rounded-2xl shadow-lg transition-all border ${
+                    (gameState.isActive && !gameState.isCompleted)
+                      ? "bg-gradient-to-r from-treasure-600 to-treasure-500 hover:from-treasure-500 hover:to-treasure-400 text-wood-900 border-treasure-400/50"
+                      : "bg-black/20 text-ocean-500 border-white/5 cursor-not-allowed"
+                  }`}
+                >
+                  <Upload size={20} />
+                  Submit Plunder
+                </motion.button>
+              )
             ) : (
               <div className="text-center p-6 bg-black/20 rounded-2xl border border-white/5 text-ocean-300 text-sm">
                 Only the Captain can submit the final plunder or spin the wheel.
@@ -260,7 +276,13 @@ export default function DashboardClient({ gameState, userRole, teamId, animation
           <h3 className="text-xl mb-6 font-bold" style={{ color: 'var(--color-ocean-100)', fontFamily: 'var(--theme-font, var(--font-serif))' }}>Submission Status</h3>
           <div className="flex items-center justify-between p-4 bg-black/30 rounded-2xl border border-white/5">
             <span className="text-ocean-200">Round {gameState.currentRound}</span>
-            <span className="text-yellow-500 font-semibold text-sm">Awaiting Submission</span>
+            {hasSubmitted ? (
+              <span className="text-green-500 font-semibold text-sm flex items-center gap-1">
+                <CheckCircle size={14} /> Submitted
+              </span>
+            ) : (
+              <span className="text-yellow-500 font-semibold text-sm">Awaiting Submission</span>
+            )}
           </div>
         </motion.div>
       </motion.div>

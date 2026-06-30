@@ -44,6 +44,12 @@ export async function POST(req: Request) {
 
     await dbConnect();
 
+    // Check if team already submitted for this round
+    const existingSubmission = await Submission.findOne({ teamId, round });
+    if (existingSubmission) {
+      return NextResponse.json({ error: "Your crew has already submitted plunder for this round!" }, { status: 400 });
+    }
+
     // Attempt to extract text from Google Doc if provided
     let extractedDocText = null;
     if (promptDocUrl) {

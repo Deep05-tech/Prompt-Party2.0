@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import dbConnect from "@/lib/db";
 import GameState from "@/models/GameState";
 import Team from "@/models/Team";
+import Submission from "@/models/Submission";
 import DashboardClient from "./DashboardClient";
 
 export default async function DashboardPage() {
@@ -30,6 +31,10 @@ export default async function DashboardPage() {
     ? await Team.findById((session.user as any).teamId)
     : null;
 
+  const existingSubmission = team 
+    ? await Submission.findOne({ teamId: team._id, round: gameState.currentRound })
+    : null;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -53,6 +58,7 @@ export default async function DashboardPage() {
         gameState={JSON.parse(JSON.stringify(gameState))} 
         userRole={(session.user as any).role} 
         teamId={(session.user as any).teamId} 
+        hasSubmitted={!!existingSubmission}
         animationStyle={(session.user as any).themeData?.animationStyle || "bounce"}
         motifIcon={(session.user as any).themeData?.motifIcon || "Anchor"}
         motifText={(session.user as any).themeData?.motifText || "PIRATES"}

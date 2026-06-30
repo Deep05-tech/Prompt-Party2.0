@@ -76,20 +76,20 @@ export default function Navbar() {
               <span>Rules</span>
             </Link>
 
+            <Link
+              href="/leaderboard"
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                pathname === "/leaderboard"
+                  ? "bg-ocean-800 text-treasure-400 border border-ocean-700"
+                  : "text-ocean-100 hover:bg-ocean-800/50 hover:text-treasure-200"
+              }`}
+            >
+              <Trophy className="h-4 w-4" />
+              <span>Leaderboard</span>
+            </Link>
+
             {(session?.user as any)?.role === "ADMIN" && (
               <>
-                <Link
-                  href="/leaderboard"
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    pathname === "/leaderboard"
-                      ? "bg-ocean-800 text-treasure-400 border border-ocean-700"
-                      : "text-ocean-100 hover:bg-ocean-800/50 hover:text-treasure-200"
-                  }`}
-                >
-                  <Trophy className="h-4 w-4" />
-                  <span>Leaderboard</span>
-                </Link>
-                
                 <Link
                   href="/admin"
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${

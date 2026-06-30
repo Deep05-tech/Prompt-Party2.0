@@ -20,6 +20,7 @@ export default function AdminDashboardClient({ initialGameState, submissions }: 
       await updateGameState({
         currentRound: gameState.currentRound,
         isActive: gameState.isActive,
+        isCompleted: gameState.isCompleted,
         durationMinutes: duration,
         weakPrompt: gameState.inputs?.weakPrompt || "",
         productImageUrl: gameState.inputs?.productImageUrl || ""
@@ -71,12 +72,20 @@ export default function AdminDashboardClient({ initialGameState, submissions }: 
             <div>
               <label className="block text-ocean-300 text-sm mb-2 uppercase">Status</label>
               <select
-                value={gameState.isActive ? "active" : "inactive"}
-                onChange={(e) => setGameState({ ...gameState, isActive: e.target.value === "active" })}
+                value={gameState.isCompleted ? "completed" : gameState.isActive ? "active" : "inactive"}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setGameState({
+                    ...gameState,
+                    isActive: val === "active",
+                    isCompleted: val === "completed"
+                  });
+                }}
                 className="w-full bg-ocean-950/50 border border-ocean-700 rounded p-3 text-ocean-50 focus:outline-none focus:border-treasure-400"
               >
                 <option value="inactive">Halted</option>
                 <option value="active">Active (Timer Running)</option>
+                <option value="completed">Event Completed (Lockdown)</option>
               </select>
             </div>
           </div>

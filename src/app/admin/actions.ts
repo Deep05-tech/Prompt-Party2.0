@@ -13,6 +13,7 @@ import { revalidatePath } from "next/cache";
 export async function updateGameState(data: {
   currentRound: number;
   isActive: boolean;
+  isCompleted?: boolean;
   durationMinutes: number;
   weakPrompt: string;
   productImageUrl: string;
@@ -30,6 +31,9 @@ export async function updateGameState(data: {
 
   gameState.currentRound = data.currentRound;
   gameState.isActive = data.isActive;
+  if (data.isCompleted !== undefined) {
+    gameState.isCompleted = data.isCompleted;
+  }
   
   if (data.isActive) {
     gameState.startTime = new Date();

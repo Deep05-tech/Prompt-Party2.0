@@ -18,8 +18,13 @@ export default async function DashboardPage() {
   const gameState = await GameState.findOne() || {
     currentRound: 1,
     isActive: false,
+    isCompleted: false,
     inputs: {},
   };
+
+  if (gameState.isCompleted && (session.user as any).role !== "ADMIN") {
+    redirect("/leaderboard");
+  }
 
   const team = (session.user as any).teamId 
     ? await Team.findById((session.user as any).teamId)

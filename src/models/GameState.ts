@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IGameState extends Document {
   currentRound: number;
   isActive: boolean;
+  isCompleted: boolean;
   startTime?: Date;
   endTime?: Date;
   inputs: {
@@ -14,6 +15,7 @@ export interface IGameState extends Document {
 const GameStateSchema = new Schema<IGameState>({
   currentRound: { type: Number, default: 1 },
   isActive: { type: Boolean, default: false },
+  isCompleted: { type: Boolean, default: false },
   startTime: { type: Date },
   endTime: { type: Date },
   inputs: {

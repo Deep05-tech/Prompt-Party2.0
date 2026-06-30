@@ -74,10 +74,10 @@ export default function JudgeClient({ submissions }: { submissions: SubmissionPr
                   <p className="text-ocean-100 text-sm whitespace-pre-wrap">{sub.prompt}</p>
                 </div>
 
-                <div className="w-full bg-black/50 rounded-lg border border-ocean-800 overflow-hidden relative" style={{ aspectRatio: '16/9' }}>
+                <div className="w-full h-[400px] bg-black/50 rounded-lg border border-ocean-800 overflow-hidden">
                   <iframe 
                     src={getPreviewUrl(sub.mediaUrl)} 
-                    className="absolute inset-0 w-full h-full border-0"
+                    className="w-full h-full border-0"
                     allow="autoplay; encrypted-media; fullscreen"
                     title="Media Preview"
                   ></iframe>

@@ -257,10 +257,9 @@ export default function DevilFruitWheel({ teamId }: { teamId?: string }) {
 
               <div className="w-full h-[2px] bg-[#3e1e04] mb-8"></div>
               
-              <Link href="/dashboard" className="inline-flex items-center gap-2 text-[#3e1e04] hover:text-[#8b0000] transition-colors font-bold text-lg uppercase tracking-wider border-b-2 border-transparent hover:border-[#8b0000]">
-                <ArrowLeft size={24} />
-                Return to Ship
-              </Link>
+              <a href="/dashboard" className="inline-flex items-center gap-2 text-[#3e1e04] hover:text-[#8b0000] transition-colors font-bold text-lg uppercase tracking-wider border-b-2 border-transparent hover:border-[#8b0000]">
+                <ArrowLeft size={24} /> Return to Dashboard
+              </a>
             </div>
           </div>
         </motion.div>

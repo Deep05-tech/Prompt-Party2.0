@@ -38,7 +38,8 @@ const TeamSchema = new Schema<ITeam>({
     motifIcon: String,
     motifText: String,
     animationStyle: String,
-  }
+  },
+  wheelResult: { type: String }
 });
 
 export default mongoose.models.Team || mongoose.model<ITeam>("Team", TeamSchema);

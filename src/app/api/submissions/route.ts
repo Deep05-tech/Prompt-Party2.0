@@ -7,13 +7,27 @@ import OpenAI from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-function getDirectImageUrl(url: string) {
+async function fetchImageAsBase64(url: string) {
   try {
     const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/) || url.match(/id=([a-zA-Z0-9-_]+)/);
-    if (!match) return url;
-    return `https://drive.google.com/uc?id=${match[1]}`;
+    if (!match) return null;
+    const fileId = match[1];
+    
+    const downloadUrl = `https://drive.google.com/uc?export=download&confirm=t&id=${fileId}`;
+    const response = await fetch(downloadUrl);
+    
+    if (!response.ok) return null;
+    
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('text/html')) return null; // Blocked by Google
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64 = buffer.toString('base64');
+    
+    return `data:${contentType || 'image/jpeg'};base64,${base64}`;
   } catch (error) {
-    return url;
+    return null;
   }
 }
 
@@ -39,8 +53,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Your crew has already submitted plunder for this round!" }, { status: 400 });
     }
 
-    // Convert Drive View URL to Direct URL
-    const directImageUrl = getDirectImageUrl(mediaUrl);
+    // Download image as Base64 to bypass hotlinking blocks
+    const base64Image = await fetchImageAsBase64(mediaUrl);
 
     // AI Evaluation logic (Visual QC Agent)
     let aiScore = 0;
@@ -69,7 +83,13 @@ CRITICAL RULES:
             role: 'user', 
             content: [
               { type: "text", text: "Evaluate this generated image." },
-              { type: "image_url", image_url: { url: directImageUrl, detail: "high" } }
+              { 
+                type: "image_url", 
+                image_url: { 
+                  url: base64Image || mediaUrl, 
+                  detail: "high" 
+                } 
+              }
             ] 
           }
         ],

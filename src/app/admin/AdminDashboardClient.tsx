@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateGameState, addFounderScore } from "./actions";
+import { updateGameState, addFounderScore, deleteSubmission } from "./actions";
 
 interface AdminDashboardClientProps {
   initialGameState: any;
@@ -46,6 +46,16 @@ export default function AdminDashboardClient({ initialGameState, submissions, te
       await addFounderScore(submissionId, score);
       alert("Score added!");
       // For a better UX, we'd optimistically update the submissions list here.
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    }
+  };
+
+  const handleDeleteSubmission = async (submissionId: string) => {
+    if (!confirm("Are you sure you want to delete this submission? This cannot be undone.")) return;
+    try {
+      await deleteSubmission(submissionId);
+      alert("Submission deleted!");
     } catch (err: any) {
       alert("Error: " + err.message);
     }
@@ -162,7 +172,15 @@ export default function AdminDashboardClient({ initialGameState, submissions, te
               <div key={sub._id} className="bg-ocean-950/50 p-4 rounded border border-ocean-700">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-bold text-treasure-400">Team: {(sub.teamId as any)?.name}</h3>
-                  <span className="text-xs bg-wood-700 px-2 py-1 rounded text-wood-300">Round {sub.round}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs bg-wood-700 px-2 py-1 rounded text-wood-300">Round {sub.round}</span>
+                    <button 
+                      onClick={() => handleDeleteSubmission(sub._id)}
+                      className="text-xs bg-red-600/20 text-red-400 px-2 py-1 rounded hover:bg-red-600/40 border border-red-500/30"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="text-sm text-ocean-200 mb-2 truncate">

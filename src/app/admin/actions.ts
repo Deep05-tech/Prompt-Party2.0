@@ -227,3 +227,32 @@ export async function removeMemberFromTeam(teamId: string, memberId: string) {
   revalidatePath("/teams");
   return { success: true };
 }
+
+export async function deleteSubmission(submissionId: string) {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as any)?.role;
+  if (!session || !session.user || role !== "ADMIN") throw new Error("Unauthorized");
+
+  await dbConnect();
+
+  const submission = await Submission.findById(submissionId);
+  if (!submission) throw new Error("Submission not found");
+
+  const teamId = submission.teamId;
+  const totalScore = submission.totalScore || 0;
+
+  await Submission.findByIdAndDelete(submissionId);
+
+  // Remove score from team if it had one
+  if (totalScore > 0) {
+    const team = await Team.findById(teamId);
+    if (team) {
+      team.score = Math.max(0, (team.score || 0) - totalScore);
+      await team.save();
+    }
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/leaderboard");
+  return { success: true };
+}

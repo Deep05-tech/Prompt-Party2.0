@@ -63,6 +63,7 @@ export default async function DashboardPage() {
         teamId={(session.user as any).teamId} 
         hasSubmitted={!!existingSubmission}
         wheelResult={team?.wheelResult}
+        driveFolderUrl={team?.driveFolderUrl}
         animationStyle={(session.user as any).themeData?.animationStyle || "bounce"}
         motifIcon={(session.user as any).themeData?.motifIcon || "Anchor"}
         motifText={(session.user as any).themeData?.motifText || "PIRATES"}

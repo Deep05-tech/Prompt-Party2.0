@@ -18,6 +18,7 @@ interface DashboardClientProps {
   teamId?: string;
   hasSubmitted?: boolean;
   wheelResult?: string;
+  driveFolderUrl?: string;
   animationStyle: string;
   motifIcon: string;
   motifText: string;
@@ -29,6 +30,7 @@ export default function DashboardClient({
   teamId, 
   hasSubmitted = false,
   wheelResult,
+  driveFolderUrl,
   animationStyle,
   motifIcon,
   motifText
@@ -244,7 +246,19 @@ export default function DashboardClient({
           </motion.div>
           <h3 className="text-xl mb-6 relative z-10 font-bold" style={{ color: 'var(--color-treasure-400)', fontFamily: 'var(--theme-font, var(--font-serif))' }}>Crew Actions</h3>
           
-          <div className="space-y-4">
+          <div className="space-y-4 relative z-10">
+            {driveFolderUrl && (
+              <a 
+                href={driveFolderUrl} 
+                target="_blank" 
+                rel="noreferrer"
+                className="w-full flex items-center justify-center gap-2 font-bold py-4 px-4 rounded-xl shadow-lg transition-all border bg-[#1a73e8] hover:bg-[#1557b0] text-white border-blue-400/30 mb-6"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M2 15h10"></path><path d="m9 18 3-3-3-3"></path></svg>
+                Open Crew Drive Folder
+              </a>
+            )}
+
             {gameState.currentRound === 2 ? (
               <div className="w-full h-full p-4 text-center">
                 {wheelResult ? (

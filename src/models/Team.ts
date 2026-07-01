@@ -19,6 +19,7 @@ export interface ITeam extends Document {
     animationStyle: string;
   };
   wheelResult?: string;
+  driveFolderUrl?: string;
 }
 
 const TeamSchema = new Schema<ITeam>({
@@ -39,7 +40,8 @@ const TeamSchema = new Schema<ITeam>({
     motifText: String,
     animationStyle: String,
   },
-  wheelResult: { type: String }
+  wheelResult: { type: String },
+  driveFolderUrl: { type: String }
 });
 
 export default mongoose.models.Team || mongoose.model<ITeam>("Team", TeamSchema);

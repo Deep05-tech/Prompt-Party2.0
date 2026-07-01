@@ -36,9 +36,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 403 });
     }
 
-    const { round, teamId, prompt, promptDocUrl, mediaUrl } = await req.json();
+    const { round, teamId, promptDocUrl, mediaUrl } = await req.json();
 
-    if (!prompt || !promptDocUrl || !mediaUrl) {
+    if (!promptDocUrl || !mediaUrl) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -63,8 +63,8 @@ export async function POST(req: Request) {
       const systemPrompt = "You are an expert AI art director grading a prompt submission for an ad film. You MUST return ONLY a valid JSON object matching this schema: {\"score\": <number between 0 and 60>, \"reason\": \"<string explaining the score>\"}.";
       
       const userPromptText = extractedDocText 
-        ? `Evaluate the following prompt details for structure, clarity, completeness, product understanding, instruction quality, and creativity. Score it out of 60.\n\nCRITICAL RULES:\n- If the combined prompt is extremely short (under 5 words), or is complete gibberish like "test" or "demo", you MUST return exactly {"score": 0, "reason": "Invalid or missing prompt"}. Do not give any pity points.\n\nUser Provided Summary: ${prompt}\nExtracted Document Content: ${extractedDocText}`
-        : `Evaluate the following prompt for structure, clarity, completeness, product understanding, instruction quality, and creativity. Score it out of 60.\n\nCRITICAL RULES:\n- If the prompt is extremely short (under 5 words), or is complete gibberish like "test" or "demo", you MUST return exactly {"score": 0, "reason": "Invalid or missing prompt"}. Do not give any pity points.\n\nPrompt: ${prompt}`;
+        ? `Evaluate the following prompt details for structure, clarity, completeness, product understanding, instruction quality, and creativity. Score it out of 60.\n\nCRITICAL RULES:\n- If the extracted content is empty or complete gibberish like "test" or "demo", you MUST return exactly {"score": 0, "reason": "Invalid or missing prompt"}. Do not give any pity points.\n\nExtracted Document Content: ${extractedDocText}`
+        : `Evaluate the following prompt for structure, clarity, completeness, product understanding, instruction quality, and creativity. Score it out of 60.\n\nCRITICAL RULES:\n- If you cannot extract text from the document, you MUST return exactly {"score": 0, "reason": "Could not extract text from document"}. Do not give any pity points.\n\nPrompt: No text could be extracted.`;
 
       const response = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
@@ -88,7 +88,6 @@ export async function POST(req: Request) {
     const submission = await Submission.create({
       round,
       teamId,
-      prompt,
       promptDocUrl,
       mediaUrl,
       aiScore,

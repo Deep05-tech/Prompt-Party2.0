@@ -12,7 +12,6 @@ interface SubmissionModalProps {
 }
 
 export default function SubmissionModal({ isOpen, onClose, currentRound, teamId, onSuccess }: SubmissionModalProps) {
-  const [promptText, setPromptText] = useState("");
   const [promptDocUrl, setPromptDocUrl] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,7 +31,6 @@ export default function SubmissionModal({ isOpen, onClose, currentRound, teamId,
         body: JSON.stringify({
           round: currentRound,
           teamId,
-          prompt: promptText,
           promptDocUrl,
           mediaUrl
         })
@@ -68,17 +66,6 @@ export default function SubmissionModal({ isOpen, onClose, currentRound, teamId,
               {error}
             </div>
           )}
-
-          <div>
-            <label className="block text-ocean-100 text-sm mb-2 uppercase tracking-wide font-semibold">Final Prompt Used</label>
-            <textarea
-              required
-              value={promptText}
-              onChange={(e) => setPromptText(e.target.value)}
-              className="w-full bg-ocean-950/50 border border-ocean-700 rounded px-4 py-3 text-ocean-50 focus:outline-none focus:border-treasure-400 focus:ring-1 focus:ring-treasure-400 min-h-[120px]"
-              placeholder="Paste the final prompt that gave you the best result..."
-            />
-          </div>
 
           <div>
             <label className="block text-ocean-100 text-sm mb-2 uppercase tracking-wide font-semibold">Prompt Document URL (Google Drive)</label>

@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface ISubmission extends Document {
   round: number;
   teamId: mongoose.Types.ObjectId;
-  prompt: string;
+  prompt?: string;
   promptDocUrl: string; // Google Drive link
   mediaUrl: string; // Final Image/Video link
   aiScore?: number;
@@ -16,7 +16,7 @@ export interface ISubmission extends Document {
 const SubmissionSchema = new Schema<ISubmission>({
   round: { type: Number, required: true },
   teamId: { type: Schema.Types.ObjectId, ref: "Team", required: true },
-  prompt: { type: String, required: true },
+  prompt: { type: String },
   promptDocUrl: { type: String, required: true },
   mediaUrl: { type: String, required: true },
   aiScore: { type: Number, default: 0 },

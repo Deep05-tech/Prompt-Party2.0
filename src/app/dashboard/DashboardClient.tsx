@@ -38,8 +38,10 @@ export default function DashboardClient({
   const [timeLeft, setTimeLeft] = useState("");
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
+  const isActuallyActive = gameState.isActive || (gameState.testCrewId && gameState.testCrewId === teamId);
+
   useEffect(() => {
-    if (!gameState.isActive || !gameState.endTime) {
+    if (!isActuallyActive || !gameState.endTime) {
       setTimeLeft("00:00");
       return;
     }
@@ -138,7 +140,7 @@ export default function DashboardClient({
           </h2>
           
           <div className="flex items-center gap-4 bg-black/20 p-6 rounded-2xl border border-white/5 mb-6">
-            <Clock className={`text-${gameState.isActive ? 'green-400' : 'red-400'}`} size={32} />
+            <Clock className={`text-${isActuallyActive ? 'green-400' : 'red-400'}`} size={32} />
             <div>
               <p className="text-sm text-ocean-200 uppercase tracking-widest font-semibold">Time Remaining</p>
                 <div className="text-3xl lg:text-5xl font-mono text-center mb-0 tracking-widest font-bold" style={{ color: 'var(--color-ocean-100)' }}>
@@ -146,8 +148,8 @@ export default function DashboardClient({
               </div>
             </div>
             <div className="ml-auto">
-              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${gameState.isActive ? 'bg-green-500/20 text-green-400 border border-green-500/50' : 'bg-red-500/20 text-red-400 border border-red-500/50'}`}>
-                {gameState.isActive ? "IN PROGRESS" : "HALTED"}
+              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${isActuallyActive ? 'bg-green-500/20 text-green-400 border border-green-500/50' : 'bg-red-500/20 text-red-400 border border-red-500/50'}`}>
+                {isActuallyActive ? (gameState.isActive ? "IN PROGRESS" : "TEST MODE ACTIVE") : "HALTED"}
               </span>
             </div>
           </div>
@@ -172,7 +174,7 @@ export default function DashboardClient({
         </motion.div>
 
           {/* Inputs Display */}
-          {gameState.isActive && gameState.inputs && gameState.currentRound === 1 && (
+          {isActuallyActive && gameState.inputs && gameState.currentRound === 1 && (
             <motion.div 
               whileHover={getHoverVariant(animationStyle)}
               className="backdrop-blur-2xl rounded-[2rem] p-8 lg:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] relative overflow-hidden transition-all duration-500"
@@ -293,12 +295,12 @@ export default function DashboardClient({
                 </div>
               ) : (
                 <motion.button 
-                  whileHover={{ scale: (gameState.isActive && !gameState.isCompleted) ? 1.02 : 1 }}
-                  whileTap={{ scale: (gameState.isActive && !gameState.isCompleted) ? 0.98 : 1 }}
+                  whileHover={{ scale: (isActuallyActive && !gameState.isCompleted) ? 1.02 : 1 }}
+                  whileTap={{ scale: (isActuallyActive && !gameState.isCompleted) ? 0.98 : 1 }}
                   onClick={() => setIsSubmitModalOpen(true)}
-                  disabled={!gameState.isActive || gameState.isCompleted}
+                  disabled={!isActuallyActive || gameState.isCompleted}
                   className={`w-full flex items-center justify-center gap-2 font-bold py-6 px-4 rounded-2xl shadow-lg transition-all border ${
-                    (gameState.isActive && !gameState.isCompleted)
+                    (isActuallyActive && !gameState.isCompleted)
                       ? "bg-gradient-to-r from-treasure-600 to-treasure-500 hover:from-treasure-500 hover:to-treasure-400 text-wood-900 border-treasure-400/50"
                       : "bg-black/20 text-ocean-500 border-white/5 cursor-not-allowed"
                   }`}

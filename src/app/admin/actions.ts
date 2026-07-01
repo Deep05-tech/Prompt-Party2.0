@@ -17,6 +17,7 @@ export async function updateGameState(data: {
   durationMinutes: number;
   weakPrompt: string;
   productImageUrl: string;
+  testCrewId?: string;
 }) {
   const session = await getServerSession(authOptions);
   const role = (session?.user as any)?.role;
@@ -31,11 +32,13 @@ export async function updateGameState(data: {
 
   gameState.currentRound = data.currentRound;
   gameState.isActive = data.isActive;
+  gameState.testCrewId = data.testCrewId;
+
   if (data.isCompleted !== undefined) {
     gameState.isCompleted = data.isCompleted;
   }
   
-  if (data.isActive) {
+  if (data.isActive || data.testCrewId) {
     gameState.startTime = new Date();
     gameState.endTime = new Date(Date.now() + data.durationMinutes * 60000);
   } else {

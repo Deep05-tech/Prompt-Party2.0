@@ -52,6 +52,7 @@ export default async function AdminPage() {
       <AdminDashboardClient 
         initialGameState={JSON.parse(JSON.stringify(gameState))}
         submissions={JSON.parse(JSON.stringify(submissions))}
+        teams={JSON.parse(JSON.stringify(teams))}
       />
 
       <TeamManagement teams={JSON.parse(JSON.stringify(teams))} />

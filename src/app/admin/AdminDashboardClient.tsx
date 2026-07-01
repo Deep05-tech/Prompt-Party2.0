@@ -6,9 +6,10 @@ import { updateGameState, addFounderScore } from "./actions";
 interface AdminDashboardClientProps {
   initialGameState: any;
   submissions: any[];
+  teams: any[];
 }
 
-export default function AdminDashboardClient({ initialGameState, submissions }: AdminDashboardClientProps) {
+export default function AdminDashboardClient({ initialGameState, submissions, teams }: AdminDashboardClientProps) {
   const [gameState, setGameState] = useState(initialGameState);
   const [loading, setLoading] = useState(false);
   const [duration, setDuration] = useState(30);
@@ -23,7 +24,8 @@ export default function AdminDashboardClient({ initialGameState, submissions }: 
         isCompleted: gameState.isCompleted,
         durationMinutes: duration,
         weakPrompt: gameState.inputs?.weakPrompt || "",
-        productImageUrl: gameState.inputs?.productImageUrl || ""
+        productImageUrl: gameState.inputs?.productImageUrl || "",
+        testCrewId: gameState.testCrewId || undefined
       });
       alert("Game state updated successfully!");
     } catch (err: any) {
@@ -88,9 +90,24 @@ export default function AdminDashboardClient({ initialGameState, submissions }: 
                 <option value="completed">Event Completed (Lockdown)</option>
               </select>
             </div>
+            
+            <div className="col-span-2">
+              <label className="block text-ocean-300 text-sm mb-2 uppercase">Test Mode Crew (Optional)</label>
+              <select
+                value={gameState.testCrewId || ""}
+                onChange={(e) => setGameState({ ...gameState, testCrewId: e.target.value || null })}
+                className="w-full bg-ocean-950/50 border border-ocean-700 rounded p-3 text-ocean-50 focus:outline-none focus:border-treasure-400"
+              >
+                <option value="">-- None (Global State Only) --</option>
+                {teams.map(t => (
+                  <option key={t._id} value={t._id}>{t.name}</option>
+                ))}
+              </select>
+              <p className="text-xs text-ocean-400 mt-1">If selected, ONLY this crew will see the event as Active (even if global status is Halted).</p>
+            </div>
           </div>
 
-          {gameState.isActive && (
+          {(gameState.isActive || gameState.testCrewId) && (
             <div>
               <label className="block text-ocean-300 text-sm mb-2 uppercase">Timer Duration (Minutes)</label>
               <input

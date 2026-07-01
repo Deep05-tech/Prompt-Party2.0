@@ -6,6 +6,7 @@ export interface IGameState extends Document {
   isCompleted: boolean;
   startTime?: Date;
   endTime?: Date;
+  testCrewId?: string;
   inputs: {
     weakPrompt?: string;
     productImageUrl?: string;
@@ -18,6 +19,7 @@ const GameStateSchema = new Schema<IGameState>({
   isCompleted: { type: Boolean, default: false },
   startTime: { type: Date },
   endTime: { type: Date },
+  testCrewId: { type: String },
   inputs: {
     weakPrompt: { type: String },
     productImageUrl: { type: String },

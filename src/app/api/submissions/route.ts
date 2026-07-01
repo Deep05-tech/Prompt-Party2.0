@@ -7,24 +7,13 @@ import OpenAI from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function fetchGoogleDocText(url: string) {
+function getDirectImageUrl(url: string) {
   try {
-    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-    if (!match) return null;
-    const fileId = match[1];
-    
-    const exportUrl = `https://docs.google.com/document/export?format=txt&id=${fileId}`;
-    const response = await fetch(exportUrl);
-    
-    if (!response.ok) return null;
-    
-    const contentType = response.headers.get('content-type') || '';
-    if (contentType.includes('text/html')) return null; // Likely a login redirect or error page
-    
-    const text = await response.text();
-    return text.trim() ? text : null;
+    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/) || url.match(/id=([a-zA-Z0-9-_]+)/);
+    if (!match) return url;
+    return `https://drive.google.com/uc?id=${match[1]}`;
   } catch (error) {
-    return null;
+    return url;
   }
 }
 
@@ -50,27 +39,39 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Your crew has already submitted plunder for this round!" }, { status: 400 });
     }
 
-    // Attempt to extract text from Google Doc if provided
-    let extractedDocText = null;
-    if (promptDocUrl) {
-      extractedDocText = await fetchGoogleDocText(promptDocUrl);
-    }
+    // Convert Drive View URL to Direct URL
+    const directImageUrl = getDirectImageUrl(mediaUrl);
 
-    // AI Evaluation logic
+    // AI Evaluation logic (Visual QC Agent)
     let aiScore = 0;
     let aiFeedback = "";
+    
     try {
-      const systemPrompt = "You are an expert AI art director grading a prompt submission for an ad film. You MUST return ONLY a valid JSON object matching this schema: {\"score\": <number between 0 and 60>, \"reason\": \"<string explaining the score>\"}.";
-      
-      const userPromptText = extractedDocText 
-        ? `Evaluate the following prompt details for structure, clarity, completeness, product understanding, instruction quality, and creativity. Score it out of 60.\n\nCRITICAL RULES:\n- If the extracted content is empty or complete gibberish like "test" or "demo", you MUST return exactly {"score": 0, "reason": "Invalid or missing prompt"}. Do not give any pity points.\n\nExtracted Document Content: ${extractedDocText}`
-        : `Evaluate the following prompt for structure, clarity, completeness, product understanding, instruction quality, and creativity. Score it out of 60.\n\nCRITICAL RULES:\n- If you cannot extract text from the document, you MUST return exactly {"score": 0, "reason": "Could not extract text from document"}. Do not give any pity points.\n\nPrompt: No text could be extracted.`;
+      const systemPrompt = `You are an expert AI Art Director acting as a QC Agent for an ad film production.
+Your task is to grade the provided generated image out of 40 points based on the following criteria:
+1. Visual Quality & Photorealism (10 pts)
+2. Adherence to Product/Theme (10 pts)
+3. Cinematic Aesthetic & Lighting (10 pts)
+4. Creativity & Impact (10 pts)
+
+You MUST return ONLY a valid JSON object matching this schema: 
+{"score": <number between 0 and 40>, "reason": "<string explaining the score and breakdown>"}
+
+CRITICAL RULES:
+- If the image is completely blank, broken, or clearly an error page, you MUST return exactly {"score": 0, "reason": "Invalid or inaccessible image. Ensure Google Drive permissions are set to 'Anyone with the link'."}.
+- Do not be overly generous; be a strict, professional art director.`;
 
       const response = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPromptText }
+          { 
+            role: 'user', 
+            content: [
+              { type: "text", text: "Evaluate this generated image." },
+              { type: "image_url", image_url: { url: directImageUrl, detail: "high" } }
+            ] 
+          }
         ],
         response_format: { type: "json_object" }
       });
@@ -81,8 +82,9 @@ export async function POST(req: Request) {
       aiFeedback = parsed.reason || "No reasoning provided by AI.";
     } catch (e: any) {
       console.error("OpenAI grading failed:", e);
-      aiFeedback = `AI Grading Failed: ${e.message || "Unknown error"}`;
-      // Fallback or leave score as 0 for admin to fix
+      aiFeedback = `AI Grading Failed: ${e.message || "Unknown error"}. Check if image is public.`;
+      // We assign 0 if the AI fails (e.g. image is restricted)
+      aiScore = 0;
     }
 
     const submission = await Submission.create({
@@ -92,7 +94,7 @@ export async function POST(req: Request) {
       mediaUrl,
       aiScore,
       aiFeedback,
-      totalScore: aiScore // Founder score will be added later
+      totalScore: aiScore // We map aiScore directly to the new Visual score
     });
 
     return NextResponse.json({ success: true, submission });

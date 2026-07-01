@@ -28,8 +28,8 @@ async function main() {
   await mongoose.connect(MONGODB_URI as string);
   console.log("Connected to MongoDB");
 
-  const teamRes = await Team.updateMany({}, { $set: { score: 0 } });
-  console.log(`Reset score for ${teamRes.modifiedCount} teams to 0.`);
+  const teamRes = await Team.updateMany({}, { $set: { score: 0 }, $unset: { wheelResult: "" } });
+  console.log(`Reset score for ${teamRes.modifiedCount} teams to 0 and cleared wheel results.`);
 
   const subRes = await Submission.deleteMany({});
   console.log(`Deleted ${subRes.deletedCount} submissions.`);
